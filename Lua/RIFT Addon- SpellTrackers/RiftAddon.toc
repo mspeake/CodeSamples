@@ -1,0 +1,34 @@
+Identifier = "SpellTrackers"
+
+Name = "Spell Trackers"
+
+Description = "Display customizable buffs, debuffs, and cooldowns"
+
+Author = "Asylina@Deepwood"
+Website = ""
+Email = "asylina11@gmail.com"
+
+Version = "1.01"
+
+Environment = "1.10"
+
+RunOnStartup = 
+{
+	"Textures.lua",
+	"Data.lua",
+	"Init.lua",
+	"Util.lua",
+	"Core.lua",
+}
+
+SavedVariables = 
+{
+	MyTrackers="character"
+}
+
+Embed = 
+{
+	["Lib/LibSimpleWidgets"] = true,
+	["Lib/LibUnitChange"] = true,
+	["Lib/colorchooser"] = true
+}

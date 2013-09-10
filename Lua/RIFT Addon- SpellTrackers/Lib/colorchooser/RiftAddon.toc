@@ -1,0 +1,20 @@
+Identifier = "ColorChooser"
+
+Name = "ColorChooser"
+
+Author = "Scott Sibley (Starlon)"
+Website = "https://github.com/Starlon/ColorChooser-Rift"
+Email = "sisibley@gmail.com"
+
+Version = "1.0"
+
+Environment = "1.6"
+
+RunOnStartup = {
+  "ColorChooser.lua",
+}
+
+-- X-Curse-Packaged-Version: v1.0.3-beta
+-- X-Curse-Project-Name: ColorChooser
+-- X-Curse-Project-ID: colorchooser
+-- X-Curse-Repository-ID: rift/colorchooser/mainline

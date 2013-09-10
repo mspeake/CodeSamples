@@ -1,0 +1,16 @@
+tag v1.0.3-beta
+46eae129801b50a795bdb930ab10d366a42424ac
+Scott Sibley <sisibley@gmail.com>
+2011-12-06 04:49:25 -0600
+
+Tagging.
+
+
+--------------------
+
+Scott Sibley:
+	- Bug fix and shrink the demo.
+	- Bug fix.
+	- Bug fix.
+	- Bug fixes.
+	- Save point.

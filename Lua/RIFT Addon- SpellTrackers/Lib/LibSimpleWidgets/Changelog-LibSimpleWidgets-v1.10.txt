@@ -1,0 +1,28 @@
+tag v1.10
+35bb438d35c37e39b605b4639ea4bea050180299
+Gordon Tyler <gordon@doxxx.net>
+2012-05-03 20:28:54 -0400
+
+v1.10 release
+
+
+--------------------
+
+Gordon Tyler:
+	- Updated Website URL in TOC.
+	- Added documentation for configurable font size and colors in SimpleTabView.
+	- Made tab font colors configurable.
+	- Removed code span markers from documentation since they don't convert to BBcode well.
+	- Made tab font size configurable.
+	- Updated version to 1.10 and required environment to 1.8.
+	- Updated documentation for SimpleTabView changes.
+	- Resize all tabs and reposition tab content when tab widths change in left or right tab position.
+	- Simplified label positioning.
+	- Make all tabs the same size for left and right positions.
+	- Fixed coloring of tab outlines when switching tab positions.
+	- Fixed removing tabs when tab position is left or right.
+	- Fix adding tabs when tab position is left or right.
+	- Added "left" and "right" tab positions.
+	- Added support for setting position of tabs to "top" and "bottom".
+	- Fixed positioning of remaining tabs when a tab is removed.
+	- Added Documentation.md.
