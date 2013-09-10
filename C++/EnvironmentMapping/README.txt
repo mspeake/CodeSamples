@@ -1,3 +1,8 @@
+Downloading the EXE:
+-For best results, download the entire repository with the "Download zip" button. 
+The EXE needs to be in a folder with all of the files(except the readme and SourceCode
+folder) in the folder anyway, and I have had problems with downloading the EXE directly
+
 Controls:
 *Press W to move forward
 *Press S to move backward
