@@ -1,26 +1,21 @@
-varying vec3 position;
-varying vec3 normal;
+varying vec3 VertPosition;
+varying vec3 VertNormal;
 
-attribute vec3 tangent;
-attribute vec3 bitangent;
+attribute vec3 ModelTangent;
+attribute vec3 ModelBitangent;
 
-varying vec3 tangent2;
-varying vec3 bitangent2;
+varying vec3 Tangent;
+varying vec3 Bitangent;
 
 void main()
 {
-	position = vec3(gl_ModelViewMatrix * gl_Vertex);
-	normal = normalize(gl_NormalMatrix * gl_Normal);
+	VertNormal = normalize(gl_NormalMatrix * gl_Normal);
+	VertPosition = vec3(gl_ModelViewMatrix * gl_Vertex);
 	
-	//----------------------------------------------------------------
-	vec3 getTan = gl_NormalMatrix * tangent;    //--------------------
-	tangent2 = getTan;                          //--------------------
-	                                            //Normal Mapping stuff
-	vec3 getBit = gl_NormalMatrix * bitangent;  //--------------------
-	bitangent2 = getBit;                        //--------------------
-	//----------------------------------------------------------------
+	Tangent = normalize(gl_NormalMatrix * ModelTangent);
+	Bitangent = normalize(gl_NormalMatrix * ModelBitangent);
 
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;//ftransform(); //
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 	gl_FrontColor = gl_Color;
-	gl_TexCoord[0]	=	gl_MultiTexCoord0;
+	gl_TexCoord[0] = gl_MultiTexCoord0;
 }

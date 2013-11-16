@@ -1,8 +1,8 @@
-varying vec3 position;
-varying vec3 normal;
+varying vec3 VertPosition;
+varying vec3 VertNormal;
 
-varying vec3 tangent2;
-varying vec3 bitangent2;
+varying vec3 Tangent;
+varying vec3 Bitangent;
 
 uniform vec3 LightPosition;
 uniform vec3 CameraPosition;
@@ -11,25 +11,23 @@ uniform vec4 lightSpecColor;
 
 uniform sampler2D Texture;
 uniform sampler2D NormalMap;
-uniform sampler2D HeightMap;
 
 
 vec3 NM_CalculateNormal()
 {
 	vec3 NM_Normal = texture2D(NormalMap, gl_TexCoord[0].st).xyz;
 	NM_Normal = 2.0 * NM_Normal - vec3(1.0, 1.0, 1.0);
-	vec3 normal2;
-	mat3 TBN_mat = mat3(tangent2, bitangent2, normal);
-	normal2  = TBN_mat * NM_Normal;
-	normal2 = normalize(normal2);
-	return normal2;
+	mat3 TBN_mat = mat3(Tangent, Bitangent, VertNormal);
+	vec3 FinalNorm  = TBN_mat * NM_Normal;
+	FinalNorm = normalize(FinalNorm);
+	return FinalNorm;
 }
 
 void main()
 {
 	vec3 N = NM_CalculateNormal();
-	vec3 E = normalize(-position); //CameraPosition - LightPosition = 0 with light at camera
-	vec3 L = E;//normalize( (LightPosition - CameraPosition) - position);
+	vec3 E = normalize(-VertPosition);
+	vec3 L = E;
 	vec3 R = normalize(-reflect(L,N));
 	
 	vec4 Iamb = vec4(0.0);
@@ -42,5 +40,5 @@ void main()
 	vec4 Ispec = lightSpecColor * matSpecColor * pow(max(dot(R, E), 0.0), NS);
 	Ispec = clamp(Ispec, 0.0, 1.0);
 	
-	gl_FragColor = (Iamb + Idiff + Ispec); //texture & light
+	gl_FragColor = (Iamb + Idiff + Ispec);
 } 

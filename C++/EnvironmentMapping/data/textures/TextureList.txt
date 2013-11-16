@@ -1,0 +1,9 @@
+BACK_TEX = data\\textures\\Back.tga
+BOTTOM_TEX = data\\textures\\Bot.tga
+FASE = data\\textures\\fase.tga
+FRONT_TEX = data\\textures\\Front.tga
+LEFT_TEX = data\\textures\\Left.tga
+RIGHT_TEX = data\\textures\\Right.tga
+DEFAULT = data\\textures\\test.tga
+TOP_TEX = data\\textures\\Top.tga
+WHITE_LINES = data\\textures\\white_lines.tga

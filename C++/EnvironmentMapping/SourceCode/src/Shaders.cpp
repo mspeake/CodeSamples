@@ -1,142 +1,79 @@
-/*--------------------------------------------------
-Implements the shader manager class
---------------------------------------------------*/
+/********************************************************************
+**Shaders.cpp
+**
+**-Implements the ShaderManager and Shader classes. The ShaderManager
+** allows the user to manage several different types of shaders, and
+** ensures that they do not interfere with each other
+********************************************************************/
+
 #include "Shaders.h"
 
-ShaderManager::ShaderManager()
+//-----ShaderObj Class Functions-----//
+ShaderObj::ShaderObj()
 {
 	Program = 0;
 	VertexShader = 0;
-	VSName[0] = 0;
 	FragmentShader = 0;
-	FSName[0] = 0;
+	VSName = "";
+	FSName = "";
 	Running = false;
 }
 
-ShaderManager::~ShaderManager()
+ShaderObj::~ShaderObj()
 {
-	Free();
+	this->Free();
 }
 
-void ShaderManager::LoadShaders(char *v, char *f)
+bool ShaderObj::LoadShaders(std::string v, std::string f)
 {
-	strcpy_s(VSName, v);
-	strcpy_s(FSName, f);
+	VSName = v;
+	FSName = f;
 
-	char *VertexData, *FragmentData;
-	FILE *fp = NULL;
-	unsigned int count = 0;
+	const char *VertexData = Shaders::ReadShader(v);
+	if(VertexData == NULL)
+		return false;
 
-	//load the vertex shader
-	fopen_s(&fp, VSName, "rb");
-	if (VSName != NULL)
+	const char *FragmentData = Shaders::ReadShader(f);
+	if(FragmentData == NULL)
 	{
-		if(fp != NULL) 
-	    { 				
-		    fseek(fp, 0, SEEK_END);
-		    count = ftell(fp);
-		    rewind(fp);
-
-		    if (count > 0)
-		    {
-			    VertexData = (char *)malloc(sizeof(char) * (count + 1));
-			    count = (int)fread(VertexData, sizeof(char), count, fp);
-			    VertexData[count] = '\0';
-		    }
-		    fclose(fp);
-		}
+		delete [] VertexData;
+		return false;
 	}
 
-	fp = NULL;
-	count = 0;
+	VertexShader = Shaders::CompileShader(GL_VERTEX_SHADER, VertexData);
+	FragmentShader = Shaders::CompileShader(GL_FRAGMENT_SHADER, FragmentData);
 
-	//load the fragment shader
-	fopen_s(&fp, FSName, "rb");
-	if (FSName != NULL)
-	{
-		if(fp != NULL) 
-	    { 				
-		    fseek(fp, 0, SEEK_END);
-		    count = ftell(fp);
-		    rewind(fp);
-
-		    if (count > 0)
-		    {
-			    FragmentData = (char *)malloc(sizeof(char) * (count + 1));
-			    count = (int)fread(FragmentData, sizeof(char), count, fp);
-			    FragmentData[count] = '\0';
-		    }
-		    fclose(fp);
-		}
-	}
-
-	const char *constVertexData = VertexData;
-	const char *constFragmentData = FragmentData;
-
-	GLint	status;
-	char	logBuffer[1024];
-	GLsizei	logLength;
-
-	//compile vertex shader
-	VertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(VertexShader, 1, &constVertexData, 0);
-	glCompileShader(VertexShader);
-	glGetShaderiv(VertexShader, GL_COMPILE_STATUS, &status);
-
-	if (!status) //vertex shader did not compile
-	{
-		glGetShaderInfoLog(VertexShader, 1024, &logLength, logBuffer);
-		printf("%d | %s\n", logLength, logBuffer);
-
-		MessageBox(NULL,"vertex shader did not compile","Error",MB_OK | MB_ICONERROR);
-	}
-
-	status = 0;
-
-	//compile fragment shader
-	FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(FragmentShader, 1, &constFragmentData, 0 );
-	glCompileShader(FragmentShader);
-	glGetShaderiv(FragmentShader, GL_COMPILE_STATUS, &status);
-
-	if (!status) //fragment shader did not compile
-	{
-		glGetShaderInfoLog(FragmentShader, 1024, &logLength, logBuffer);
-		printf("%d | %s\n", logLength, logBuffer);
-
-        MessageBox(NULL,"fragment shader did not compile","Error",MB_OK | MB_ICONERROR);
-	}
+	delete [] VertexData;
+	delete [] FragmentData;
 
 	Program = glCreateProgram();
-			
 	glAttachShader(Program, VertexShader);
 	glAttachShader(Program, FragmentShader);
 	glLinkProgram(Program);
 
-	GLenum err = glGetError();
-	if(err)
+	GLenum Err = glGetError();
+	if(Err)
 	{
-		MessageBox(NULL,"Error attaching shader","Error",MB_OK | MB_ICONERROR);
+		MessageBox(NULL, "Error attaching shader", "Error", MB_OK | MB_ICONERROR);
+		return false;
 	}
 
-	free(VertexData);
-	free(FragmentData);
-
+	return true;
 }
 
-void ShaderManager::RunShaders()
+void ShaderObj::RunShaders()
 {
 	glUseProgram(Program);
 	Running = true;
 }
 
-void ShaderManager::StopShaders()
+void ShaderObj::StopShaders()
 {
 	glUseProgram(0);
 	Running = false;
 }
 
-void ShaderManager::Free()
+void ShaderObj::Free()
 {
 	glDetachShader(Program, VertexShader);
 	glDetachShader(Program, FragmentShader);
@@ -144,40 +81,210 @@ void ShaderManager::Free()
 	glDeleteShader(FragmentShader);
 	glDeleteProgram(Program);
 }
+//-----ShaderObj Class Functions-----//
 
-
-void PassShaderData(void)
+//-----ShaderManager Class Functions-----//
+ShaderManager::ShaderManager()
 {
-	GLuint ShaderProgram = MyShader.Program;
-
-	GLfloat LPos[3] = {sCamera.Pos.x, sCamera.Pos.y, sCamera.Pos.z};
-	glUniform3fv(glGetUniformLocation(MyShader.Program, "LightPosition"), 1, LPos);
-
-	GLfloat CPos[3] = {sCamera.Pos.x, sCamera.Pos.y, sCamera.Pos.z};
-	glUniform3fv(glGetUniformLocation(MyShader.Program, "CameraPosition"), 1, CPos);
-
-	GLfloat Dif[4] = {0.8f, 0.8f, 0.8f, 1.0f};
-	glUniform4fv(glGetUniformLocation(MyShader.Program, "lightDiffuseColor"), 1, Dif);
-
-	GLfloat Spec[4] = {1.0f, 1.0f, 1.0f, 1.0};
-	glUniform4fv(glGetUniformLocation(ShaderProgram, "lightSpecColor"), 1, Spec);
+	CurrentlyRunning = "";
 }
 
-void PassEnvMapData(void)
+ShaderManager::~ShaderManager()
 {
-	GLuint ShaderProgram = EnvMapShader.Program;
-	glEnable(GL_TEXTURE_2D);
+	std::map<std::string, ShaderObj*>::iterator It = Shaders.begin();
 
-	BindShaderTexture(1, ShaderProgram, "TexLeft", LeftPic);
-	BindShaderTexture(2, ShaderProgram, "TexRight", RightPic);
-	BindShaderTexture(3, ShaderProgram, "TexTop", TopPic);
-	BindShaderTexture(4, ShaderProgram, "TexBottom", BottomPic);
-	BindShaderTexture(5, ShaderProgram, "TexFront", FrontPic);
-	BindShaderTexture(6, ShaderProgram, "TexBack", BackPic);
-	BindShaderTexture(7, ShaderProgram, "NormalMap", NormalMapID);
-	
-	GLfloat CPos[3] = {sCamera.Pos.x, sCamera.Pos.y, sCamera.Pos.z};
-	glUniform3fv(glGetUniformLocation(ShaderProgram, "CameraPos"), 1, CPos);
-	glUniform1i(glGetUniformLocation(ShaderProgram, "Option"), rg_num);
-	glUniform1i(glGetUniformLocation(ShaderProgram, "NormFlag"), use_nm);
+	while(It != Shaders.end())
+		delete It->second;
+
+	Shaders.clear();
+}
+
+void ShaderManager::AddShader(std::string name, std::string v, std::string f)
+{
+	if(Shaders[name] == NULL) //dont create the shader if this slot is taken
+	{
+		ShaderObj* S = new ShaderObj();
+
+		if(S->LoadShaders(v, f))
+			Shaders[name] = S;
+		else
+			delete S;
+	}
+}
+
+void ShaderManager::RunShader(std::string name)
+{
+	if((name.empty()) || (Shaders[name] == NULL)) //given name is null or does not match
+		return;                                   //the name of any of the listed shaders
+
+	this->StopShader(); //if there is another shader currently running, stop it
+	Shaders[name]->RunShaders();
+	CurrentlyRunning = name;
+}
+
+void ShaderManager::StopShader(void)
+{
+	if(CurrentlyRunning.empty()) //no shader currently running
+		return;
+
+	Shaders[CurrentlyRunning]->StopShaders();
+	CurrentlyRunning = "";
+}
+
+GLuint ShaderManager::GetProgram(void)
+{
+	if(CurrentlyRunning.empty()) //no shader currently running
+		return -1;
+
+	return Shaders[CurrentlyRunning]->Program;
+}
+
+std::string ShaderManager::GetCurrentShader(void) const
+{
+	return CurrentlyRunning;
+}
+
+void ShaderManager::PassTexture(const std::string shader, const std::string var, const GLuint tex, const int num) const
+{
+	ShaderManager* SM = Shaders::ShaderController;
+	if(SM->GetCurrentShader() == shader)
+	{
+		GLint Location = glGetUniformLocation(SM->GetProgram(), var.c_str());
+		if(Location > 0)
+		{
+			glUniform1i(Location, num);
+			Shaders::BindTexture(num, tex);
+		}
+	}
+}
+
+void ShaderManager::PassUniform1i(const std::string shader, const std::string var, const int data) const
+{
+	ShaderManager* SM = Shaders::ShaderController;
+	if(SM->GetCurrentShader() == shader)
+	{
+		GLint Location = glGetUniformLocation(SM->GetProgram(), var.c_str());
+		if(Location > 0)
+		{
+			glUniform1i(Location, data);
+		}
+	}
+}
+
+void ShaderManager::PassUniform3f(const std::string shader, const std::string var, const Vector& data) const
+{
+	ShaderManager* SM = Shaders::ShaderController;
+	if(SM->GetCurrentShader() == shader)
+	{
+		GLfloat Vals[3] = {data.X, data.Y, data.Z};
+		GLint Location = glGetUniformLocation(SM->GetProgram(), var.c_str());
+		if(Location > 0)
+		{
+			glUniform3fv(Location, 1, Vals);
+		}
+	}
+}
+
+void ShaderManager::PassUniform4f(const std::string shader, const std::string var, const Color& data) const
+{
+	ShaderManager* SM = Shaders::ShaderController;
+	if(SM->GetCurrentShader() == shader)
+	{
+		GLfloat Vals[4] = {data.R, data.G, data.B, data.A};
+		GLint Location = glGetUniformLocation(SM->GetProgram(), var.c_str());
+		if(Location > 0)
+		{
+			glUniform4fv(Location, 1, Vals);
+		}
+	}
+}
+
+void ShaderManager::PassAttribute(const std::string shader, const std::string var, const float* data) const
+{
+	ShaderManager* SM = Shaders::ShaderController;
+	if(SM->GetCurrentShader() == shader)
+	{
+		GLuint Location = glGetAttribLocation(SM->GetProgram(), var.c_str());
+		if(Location > 0)
+		{
+			glEnableVertexAttribArray(Location);
+			glVertexAttribPointer(Location, 3, GL_FLOAT, false, 0, data);
+		}
+	}
+}
+//-----ShaderManager Class Functions-----//
+
+namespace Shaders
+{
+	ShaderManager* ShaderController = NULL;
+
+	//-----Shader Utility Functions-----//
+	char* ReadShader(std::string name)
+	{
+		char* ShaderData = NULL;
+		unsigned int Count = 0;
+
+		FILE* Fp = NULL;
+		fopen_s(&Fp, name.c_str(), "rb");
+		if(name.c_str() != NULL)
+		{
+			if(Fp != NULL) 
+			{ 				
+				fseek(Fp, 0, SEEK_END);
+				Count = ftell(Fp);
+				rewind(Fp);
+
+				if(Count > 0)
+				{
+					ShaderData = new char[Count + 1];
+					Count = (int)fread(ShaderData, sizeof(char), Count, Fp);
+					ShaderData[Count] = '\0';
+				}
+				fclose(Fp);
+			}
+		}
+
+		return ShaderData;
+	}
+
+	GLuint CompileShader(int type, const char* data)
+	{
+		GLint Status;
+		char LogBuffer[1024];
+		GLsizei	LogLength;
+
+		//compile shader
+		GLuint Shader = glCreateShader(type);
+		glShaderSource(Shader, 1, &data, 0);
+		glCompileShader(Shader);
+		glGetShaderiv(Shader, GL_COMPILE_STATUS, &Status);
+
+		if(!Status) //shader did not compile
+		{
+			glGetShaderInfoLog(Shader, 1024, &LogLength, LogBuffer);
+			std::cout << LogLength << " | " << LogBuffer << std::endl;
+
+			std::string ErrMsg;
+
+			if(type == GL_VERTEX_SHADER)
+				ErrMsg = "Vertex shader did not compile";
+			else
+				ErrMsg = "Fragment shader did not compile";
+
+			MessageBox(NULL, ErrMsg.c_str(), "Error", MB_OK | MB_ICONERROR);
+			return -1;
+		}
+
+		return Shader;
+	}
+
+	void BindTexture(unsigned num, unsigned tex)
+	{
+		glActiveTexture(GL_TEXTURE0 + num);
+		glBindTexture(GL_TEXTURE_2D, tex);
+		glMatrixMode(GL_TEXTURE);
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+	}
+	//-----Shader Utility Functions-----//
 }
