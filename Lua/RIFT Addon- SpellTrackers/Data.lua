@@ -1,3 +1,49 @@
+--[[
+Random notes and TO-DO:
+	*header for all files
+	
+	*review serialization processes
+	 
+	*implement resource tracking:
+		-Health
+		-Mana/Energy/Power
+		-Combo Points/Attack Points (player only, probably the same thing)
+		-Charge (player only)
+	
+	*implement import/export feature
+	
+	*test lots of things
+	*make trackers always appear in the same order on the GUI
+	*make spell name no longer be case-sensitive via uppercase string function
+	 
+	*make separate source file dedicated to GUI creation functions
+	
+	*magic numbers in Main GUI, edit window, and help window creation
+	 
+	*Optimize resource updates, probably need to perform an initial validation
+	
+	*Some issue with MaxHealth being nil on the first check, but works afterwards
+	
+	*Update function to editor panel or something, make sure user doesnt enter more
+	 than 100 when using percentages
+	
+	*RemoveBuffHelper should probably be using AddMe(Buff) instead of SetVisible(true)
+	
+	*clean up CreateTracker
+	
+	
+	
+	buff
+	debuff
+	cooldown
+	health
+	mana/energy
+	charge
+	combo points
+	
+--]]
+
+
 --Global Declarations
 Addon, Shared = ...
 AddonID = Addon.identifier;

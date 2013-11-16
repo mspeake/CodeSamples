@@ -1,3 +1,5 @@
+--Legacy code, saved in case of reversion
+
 local function AddBuffHelper(handle, unit, buffs, tracked)
 	local BuffDetails = Inspect.Buff.Detail(unit, buffs);
 	local BuffInd = next(BuffDetails);
