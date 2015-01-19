@@ -1,0 +1,15 @@
+## Interface: 60000
+## Title: StickyNotes
+## Notes: Because my GM wants to have notes on his screen
+## Version: 1.0.0
+## SavedVariables: AccountWideData
+## SavedVariablesPerCharacter: CharacterSavedData
+
+Utils.lua
+Resizers.lua
+Menu.lua
+ColorPicker.lua
+StickyNotes.lua
+
+Utils.xml
+StickyNotes.xml
